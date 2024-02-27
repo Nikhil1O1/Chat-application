@@ -3,6 +3,7 @@ const dotenv = require('dotenv')
 const mongoose = require('mongoose')
 const userModel = require('./models/UserModel')
 const jwt = require('jsonwebtoken')
+const bcrypt = require('bcryptjs');
 const cookieParser = require('cookie-parser')
 const cors = require('cors');
  
@@ -21,6 +22,7 @@ mongoose
     .catch((err)=> console.log(err))
 
 const jwtSecret = process.env.JWT_SECRET;
+const bcryptSalt = bcrypt.genSaltSync(10);
 
 app.get('/test', (req,res)=>{
     res.json('test ok');
@@ -39,10 +41,22 @@ app.get('/profile', (req,res)=>{
     }
     
 })
+
+app.post('/login', async(req,res)=>{
+    const {username,password} = req.body;
+    await userModel.findOne({username},(err,user)=>{
+        const foundUser = user;
+        
+        if(err) throw err;
+    })
+})
 app.post('/register', async (req,res)=>{
     const {username, password} = req.body;
     try {
-        const createdUser = await userModel.create({username,password});
+        const hashedPass = bcrypt.hashSync(password, bcryptSalt);
+        const createdUser = await userModel.create({
+            username: username,
+            password:hashedPass});
         jwt.sign({userId:createdUser._id, username},jwtSecret,{}, (err,token)=>{
             if(err) throw err;
             res.cookie('token',token, {sameSite:'none', secure:true}).status(201).json({

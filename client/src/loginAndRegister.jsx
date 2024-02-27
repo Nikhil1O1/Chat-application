@@ -7,7 +7,7 @@ export default function loginAndRegister(){
     const [password, setPassword] = useState("");
     const [isLoginOrRegister, setIsLoginOrRegister] = useState('register');
     const {setUsername: setLoggedInUsername, setId} = useContext(UserContext);
-    async function register(ev){
+    async function loginAndRegister(ev){
         ev.preventDefault();
         const url = isLoginOrRegister === 'register' ? '/register' : '/login';
         const {data} = await axios.post(url, {username, password});
