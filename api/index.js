@@ -34,7 +34,9 @@ app.get('/profile', (req,res)=>{
         jwt.verify(token, jwtSecret, {}, (err,userData)=>{
             if(err) throw err;
             // const {id, username} = {userData};
-            res.json({userData})
+            res.json({
+                userData
+            })
         });
     } else {
         res.status(401).json('no token');
@@ -44,16 +46,12 @@ app.get('/profile', (req,res)=>{
 
 app.post('/login', async(req,res)=>{
     const {username,password} = req.body;
-    // await userModel.findOne({username},(err,user)=>{
-    //     const foundUser = user;
-        
-    //     if(err) throw err;
     const foundUser = await userModel.findOne({username});
     if(foundUser){
         const passOk = bcrypt.compareSync(password, foundUser.password);
         if(passOk){
             jwt.sign({userId:foundUser._id,username},jwtSecret,{},(err,token) =>{
-                res.cookie('token', token).json({
+                res.cookie('token', token, {sameSite:'none', secure:true}).json({
                     id: foundUser._id
                 })
             })
