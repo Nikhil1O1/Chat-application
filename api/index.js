@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs');
 const cookieParser = require('cookie-parser')
 const cors = require('cors');
+const ws = require('ws');
  
 dotenv.config({ path: `${__dirname}/config.env` });
 
@@ -81,4 +82,9 @@ app.post('/register', async (req,res)=>{
     
 });
 
-app.listen(4000);
+const server = app.listen(4000);
+
+const wss = new ws.WebSocketServer({server});
+wss.on('connection', (connection) => {
+    console.log('connected to wss')
+})
