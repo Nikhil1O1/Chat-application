@@ -85,6 +85,25 @@ app.post('/register', async (req,res)=>{
 const server = app.listen(4000);
 
 const wss = new ws.WebSocketServer({server});
-wss.on('connection', (connection) => {
-    console.log('connected to wss')
+wss.on('connection', (connection, req) => {
+    // now wss provides us way to see online ip, but to show which user is online, we grab all
+    //cookie from header and then decode it to get username.
+    const cookies = req.headers.cookie;
+    if (cookies){
+        consttokenCookieString = cookies.split(';').find(str => str.startsWith('token='))
+        // console.log(consttokenCookieString)
+        if (consttokenCookieString){
+            const token = consttokenCookieString.split('=')[1];
+            if(token){
+                // console.log(token);
+                jwt.verify(token, jwtSecret, {}, (err, userData)=>{
+                    if(err) throw err;
+                    const {userId, username} = userData;
+                    connection.userId = userId;
+                    connection.username = username;
+                })
+            }
+        }
+    }
+    console.log([...wss.clients].length);
 })
