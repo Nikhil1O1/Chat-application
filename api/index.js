@@ -46,7 +46,8 @@ app.get('/profile', (req,res)=>{
 })
 
 app.post('/login', async(req,res)=>{
-    const {username,password} = req.body;
+    try {
+        const {username,password} = req.body;
     const foundUser = await userModel.findOne({username});
     if(foundUser){
         const passOk = bcrypt.compareSync(password, foundUser.password);
@@ -58,7 +59,12 @@ app.post('/login', async(req,res)=>{
             })
         }
     }
-    })
+    } catch (error) {
+        console.log(err)
+        res.status(500).json('error')
+    }
+    }
+    )
 
 app.post('/register', async (req,res)=>{
     const {username, password} = req.body;
